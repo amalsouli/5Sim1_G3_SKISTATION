@@ -76,7 +76,7 @@ pipeline {
             steps {
                 script {
                     // Build the Docker image
-                    sh "docker build -t oumayy/gestion-devops:{test} ."
+                    sh "docker build -t oumayy/gestion-devops:test"
                 }
             }
         }
@@ -86,7 +86,7 @@ pipeline {
               script {
                     // Log in to Docker Hub and push the image
                     docker.withRegistry('https://registry.hub.docker.com', 'docker-hub') {
-                        sh " docker push oumayy/gestion-devops:{test}"
+                        sh " docker push oumayy/gestion-devops:test"
                     }
                 }
             }
