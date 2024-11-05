@@ -3,7 +3,7 @@ pipeline {
 
     tools {
         jdk 'JAVA_HOME'
-        maven 'MAVEN_HOME'   
+        maven 'MAVEN_HOME'
     }
 
     environment {
@@ -25,7 +25,7 @@ pipeline {
             steps {
                 git branch: 'main',
                 credentialsId: 'GITHUB_CREDENTIALS',
-                url: 'https://github.com/Oumayma-cherif/ski.git'
+                url: 'https://github.com/Oumayma-cherif/Devops.git'
             }
         }
 
@@ -76,7 +76,7 @@ pipeline {
             steps {
                 script {
                     // Build the Docker image
-                    sh "docker build -t oumaymacherif/gestion-station-ski:${IMAGE_TAG} ."
+                    sh "docker build -t oumaymacherif/gestion-devops:${IMAGE_TAG} ."
                 }
             }
         }
@@ -86,7 +86,7 @@ pipeline {
                 script {
                     // Log in to Docker Hub and push the image
                     docker.withRegistry('https://registry.hub.docker.com', 'DOCKER_HUB_CREDENTIALS') {
-                        sh "docker push oumaymacherif/gestion-station-ski:${IMAGE_TAG}"
+                        sh "docker push oumaymacherif/devops:${IMAGE_TAG}"
                     }
                 }
             }
