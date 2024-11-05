@@ -52,7 +52,7 @@ pipeline {
                     '''
 
                     // Run SonarQube analysis
-                    sh "mvn sonar:sonar -Dsonar.login=${SONAR_CREDENTIALS_PSW} -Dsonar.host.url=http://localhost:9000 -Dsonar.projectKey=gestion-station-ski"
+                    sh "mvn sonar:sonar -Dsonar.login=${SONAR_CREDENTIALS_PSW} -Dsonar.host.url=http://localhost:9000 "
                 }
             }
         }
