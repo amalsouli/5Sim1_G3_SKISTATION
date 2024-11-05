@@ -9,7 +9,7 @@ pipeline {
     environment {
         NEXUS_CREDENTIALS = credentials('nexus-credentials')
         GITHUB_CREDENTIALS = credentials('github')
-        SONAR_TOKEN = credentials('sonar-token')   // Use the SonarQube token here
+        SONAR_TOKEN = credentials('sonar.token')   // Use the SonarQube token here
         DOCKER_HUB_CREDENTIALS = credentials('docker-hub')
         IMAGE_TAG = "${env.BUILD_NUMBER}"
     }
