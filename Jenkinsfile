@@ -58,19 +58,19 @@ pipeline {
         }
 
         //stage("Nexus Deployment") {
-           // steps {
-            //    script {
-                    // Start Nexus service if not running
-                //    sh 'docker start nexus || echo "Nexus already running."'
+            steps {
+              script {
+                     //Start Nexus service if not running
+                   sh 'docker start nexus || echo "Nexus already running."'
 
-                    // Wait for Nexus to be operational
-                  //  sh 'sleep 10'
+                     Wait for Nexus to be operational
+                   sh 'sleep 10'
 
                     // Deploy to Nexus
-                  //  sh "mvn clean deploy -DskipTests -s /var/lib/jenkins/.m2/settings.xml"
-                //}
-            //}
-        //}
+                    sh "mvn clean deploy -DskipTests -s /var/lib/jenkins/.m2/settings.xml"
+                }
+            }
+        }
 
         stage("Build Docker Image") {
             steps {
