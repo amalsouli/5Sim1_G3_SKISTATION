@@ -5,12 +5,20 @@ pipeline {
         maven 'M2_HOME'
     }
 
+    environment {
+        IMAGE_TAG = "${env.BUILD_NUMBER}"
+        SonarQubeEnv = credentials('admin') // Ensure this credential ID exists in Jenkins
+    }
 
     stages {
-        stage('Git') {
+        stage('Cleanup Workspace') {
             steps {
-                git credentialsId: 'younesali0', branch: 'YounesAli-5DS6-G6',
-                    url: 'https://github.com/NadaManai/5DS6_G6_gestion-station-ski.git'
+                cleanWs()
+            }
+        }
+        stage('Checkout from SCM') {
+            steps {
+                git credentialsId: 'github', branch: 'main', url: 'https://github.com/Oumayma-cherif/ski.git'
             }
         }
 
@@ -24,17 +32,17 @@ pipeline {
         stage('Mockito Tests') {
             steps {
                 script {
-                    echo "Démarrage des tests unitaires avec Mockito..."
+                    echo "Starting unit tests with Mockito..."
                     sh 'mvn test -Dspring.profiles.active=test'
-                    echo "Tests unitaires terminés avec succès !"
+                    echo "Unit tests completed successfully!"
                 }
             }
             post {
                 success {
-                    echo "Tous les tests unitaires sont réussis."
+                    echo "All unit tests passed."
                 }
                 failure {
-                    echo "Des tests unitaires ont échoué."
+                    echo "Some unit tests failed."
                 }
             }
         }
@@ -42,150 +50,145 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 script {
-                    // Démarrer SonarQube en Docker
+                    // Start SonarQube in Docker
                     sh 'docker start sonarqube'
 
-                    // Boucle pour vérifier si SonarQube est prêt
+                    // Wait until SonarQube is ready
                     sh '''
-                    echo "Attente que SonarQube soit opérationnel..."
+                    echo "Waiting for SonarQube to be operational..."
                     until curl -s http://localhost:9000/api/system/status | grep -q "UP"; do
-                        echo "SonarQube n'est pas encore prêt, attente de 10 secondes..."
+                        echo "SonarQube is not ready yet, waiting 10 seconds..."
                         sleep 10
                     done
-                    echo "SonarQube est maintenant prêt !"
+                    echo "SonarQube is now ready!"
                     '''
 
-                    // Exécuter l’analyse SonarQube
-                    sh 'mvn sonar:sonar -Dspring.profiles.active=test -Dsonar.projectKey=gestion-station-ski -Dsonar.host.url=http://localhost:9000 -Dsonar.login=sqa_40c91d3bd3e61c5131e16c52b8dd1990c2e80156'
+                    // Execute SonarQube analysis
+                    sh 'mvn sonar:sonar -Dspring.profiles.active=test -Dsonar.projectKey=gestion-station-ski -Dsonar.host.url=http://localhost:9000 -Dsonar.login=${SonarQubeEnv}'
                 }
-
-
             }
         }
-        stage(' Nexus') {
+
+        stage('Nexus') {
             steps {
                 script {
-                    // Démarre le conteneur Nexus
+                    // Start the Nexus container
                     sh 'docker start nexus'
 
-                    // Vérifier que Nexus est bien démarré avec une vérification sur docker ps
+                    // Verify that Nexus is running
                     def nexusRunning = sh(script: 'docker ps | grep nexus', returnStatus: true) == 0
                     if (!nexusRunning) {
-                        error "Le conteneur Nexus n'est pas en cours d'exécution. Veuillez vérifier la configuration."
+                        error "Nexus container is not running. Please check the configuration."
                     } else {
-                        echo "Nexus est démarré et opérationnel."
+                        echo "Nexus is up and running."
                     }
 
-                    // Pause pour s'assurer que Nexus est bien initialisé
+                    // Pause to ensure Nexus is initialized
                     sh 'sleep 10'
 
-                    // Déployer sur Nexus sans injection de credentials
+                    // Deploy to Nexus without injecting credentials
                     sh 'mvn clean deploy -DskipTests -s /var/lib/jenkins/.m2/settings.xml'
                 }
             }
         }
+
         stage('Docker Image') {
             steps {
-                // Étape de packaging Maven
+                // Package with Maven
                 sh 'mvn clean package -DskipTests'
 
-                // Étape de construction de l'image Docker
-                sh 'docker build -t aliyounes/gestion-station-ski:1.4 .'
+                // Build the Docker image
+                sh 'docker build -t oumaymacherif_5sim1-ski .'
             }
         }
+
         stage('Docker Hub') {
             steps {
-                // Connexion à Docker Hub
-                sh 'docker login -u aliyounes -p201JMT4012'
+                // Login to Docker Hub
+                sh 'docker login -u oumaymacherif -p YOUR_DOCKER_HUB_PASSWORD'
 
-                // Pousser l'image sur Docker Hub
-                sh 'docker push aliyounes/gestion-station-ski:1.4'
+                // Push the image to Docker Hub
+                sh 'docker push oumaymacherif_5sim1-ski'
             }
         }
+
         stage('Docker Compose') {
             steps {
                 script {
-                    // Lancer Docker Compose pour démarrer les conteneurs
+                    // Launch Docker Compose to start the containers
                     sh 'docker compose up -d'
 
-                    // Pause pour s’assurer que les conteneurs ont le temps de démarrer
+                    // Pause to ensure the containers have time to start
                     sh 'sleep 10'
 
-                    // Vérification du conteneur app-spring
+                    // Check the Spring app container
                     def appContainer = sh(script: "docker ps | grep app-spring", returnStatus: true)
                     if (appContainer == 0) {
-                        echo "Création du conteneur Spring réussie pour gestion-station-ski."
+                        echo "Spring container creation successful for gestion-station-ski."
                     } else {
-                        error "Échec du démarrage du conteneur Spring pour gestion-station-ski."
+                        error "Failed to start the Spring container for gestion-station-ski."
                     }
 
-                    // Vérification du conteneur mysqldb
+                    // Check the MySQL db container
                     def dbContainer = sh(script: "docker ps | grep mysqldb", returnStatus: true)
                     if (dbContainer == 0) {
-                        echo "Création du conteneur MySQL réussie pour MySQL 5.7."
+                        echo "MySQL container creation successful for MySQL 5.7."
                     } else {
-                        error "Échec du démarrage du conteneur MySQL pour MySQL 5.7."
+                        error "Failed to start the MySQL container for MySQL 5.7."
                     }
                 }
             }
-
         }
-         stage('Grafana') {
-                        steps {
-                            script {
-                                // Démarre le conteneur mysql-exporter2
-                                echo "Démarrage du conteneur mysql-exporter2..."
-                                sh 'docker start mysql-exporter2'
 
-                                // Pause de 180 secondes
-                                sleep 180
+        stage('Grafana') {
+            steps {
+                script {
+                    // Start mysql-exporter2 container
+                    echo "Starting mysql-exporter2 container..."
+                    sh 'docker start mysql-exporter2'
 
-                                // Vérifie si mysql-exporter2 est en cours d’exécution
-                                def mysqlExporterContainer = sh(script: "docker ps | grep mysql-exporter2", returnStatus: true)
-                                if (mysqlExporterContainer == 0) {
-                                    echo "Création du conteneur mysql-exporter2 réussie."
-                                } else {
-                                    error "Échec du démarrage du conteneur mysql-exporter2."
-                                }
+                    // Wait for the container to initialize
+                    sleep 180
 
-                                // Démarre le conteneur prometheus
-                                echo "Démarrage du conteneur prometheus..."
-                                sh 'docker start prometheus'
+                    // Check if mysql-exporter2 is running
+                    def mysqlExporterContainer = sh(script: "docker ps | grep mysql-exporter2", returnStatus: true)
+                    if (mysqlExporterContainer == 0) {
+                        echo "mysql-exporter2 container created successfully."
+                    } else {
+                        error "Failed to start mysql-exporter2 container."
+                    }
 
-                                // Pause de 180 secondes
-                                sleep 180
+                    // Start Prometheus container
+                    echo "Starting Prometheus container..."
+                    sh 'docker start prometheus'
 
-                                // Vérifie si prometheus est en cours d’exécution
-                                def prometheusContainer = sh(script: "docker ps | grep prometheus", returnStatus: true)
-                                if (prometheusContainer == 0) {
-                                    echo "Création du conteneur prometheus réussie."
-                                } else {
-                                    error "Échec du démarrage du conteneur prometheus."
-                                }
+                    // Wait for the container to initialize
+                    sleep 180
 
-                                // Démarre le conteneur grafana
-                                echo "Démarrage du conteneur grafana..."
-                                sh 'docker start grafana'
+                    // Check if Prometheus is running
+                    def prometheusContainer = sh(script: "docker ps | grep prometheus", returnStatus: true)
+                    if (prometheusContainer == 0) {
+                        echo "Prometheus container created successfully."
+                    } else {
+                        error "Failed to start Prometheus container."
+                    }
 
-                                // Pause de 180 secondes
-                                sleep 180
+                    // Start Grafana container
+                    echo "Starting Grafana container..."
+                    sh 'docker start grafana'
 
-                                // Vérifie si grafana est en cours d’exécution
-                                def grafanaContainer = sh(script: "docker ps | grep grafana", returnStatus: true)
-                                if (grafanaContainer == 0) {
-                                    echo "Création du conteneur grafana réussie."
-                                } else {
-                                    error "Échec du démarrage du conteneur grafana."
-                                }
-                            }
-         }               }
+                    // Wait for the container to initialize
+                    sleep 180
 
-
-
-
-
-
-
-
+                    // Check if Grafana is running
+                    def grafanaContainer = sh(script: "docker ps | grep grafana", returnStatus: true)
+                    if (grafanaContainer == 0) {
+                        echo "Grafana container created successfully."
+                    } else {
+                        error "Failed to start Grafana container."
+                    }
+                }
+            }
+        }
     }
 }
