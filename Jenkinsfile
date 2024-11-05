@@ -9,7 +9,7 @@ pipeline {
     environment {
         NEXUS_CREDENTIALS = credentials('nexus-credentials')
         GITHUB_CREDENTIALS = credentials('github')
-        SONAR_CREDENTIALS = credentials('admin')
+        SONAR_TOKEN = credentials('sonar-token')   // Use the SonarQube token here
         DOCKER_HUB_CREDENTIALS = credentials('docker-hub')
         IMAGE_TAG = "${env.BUILD_NUMBER}"
     }
@@ -24,7 +24,7 @@ pipeline {
         stage("Checkout from SCM") {
             steps {
                 git branch: 'main',
-                credentialsId: 'GITHUB_CREDENTIALS',
+                credentialsId: 'github',  // Update with the correct ID directly
                 url: 'https://github.com/Oumayma-cherif/Devops.git'
             }
         }
@@ -51,8 +51,8 @@ pipeline {
                     echo "SonarQube is now ready!"
                     '''
 
-                    // Run SonarQube analysis
-                    sh "mvn sonar:sonar -Dsonar.login=${SONAR_CREDENTIALS_PSW} -Dsonar.host.url=http://localhost:9000 "
+                    // Run SonarQube analysis with the correct token
+                    sh "mvn sonar:sonar -Dsonar.projectKey=gestion-station-ski -Dsonar.host.url=http://localhost:9000 -Dsonar.login=${SONAR_TOKEN}"
                 }
             }
         }
@@ -85,8 +85,8 @@ pipeline {
             steps {
                 script {
                     // Log in to Docker Hub and push the image
-                    docker.withRegistry('https://registry.hub.docker.com', 'DOCKER_HUB_CREDENTIALS') {
-                        sh "docker push oumaymacherif/devops:${IMAGE_TAG}"
+                    docker.withRegistry('https://registry.hub.docker.com', 'docker-hub') { // Make sure 'docker-hub' is the correct ID
+                        sh "docker push oumaymacherif/gestion-devops:${IMAGE_TAG}"
                     }
                 }
             }
