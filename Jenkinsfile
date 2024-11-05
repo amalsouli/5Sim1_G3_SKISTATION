@@ -57,7 +57,7 @@ pipeline {
             }
         }
 
-        //stage("Nexus Deployment") {
+        stage("Nexus Deployment") {
             steps {
               script {
                      //Start Nexus service if not running
