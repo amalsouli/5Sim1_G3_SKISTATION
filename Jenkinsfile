@@ -83,7 +83,7 @@ pipeline {
 
         stage("Publish Docker Image") {
             steps {
-             /  script {
+              script {
                     // Log in to Docker Hub and push the image
                     docker.withRegistry('https://registry.hub.docker.com', 'docker-hub') {
                         sh "docker push oumaymacherif/gestion-devops:${IMAGE_TAG}"
