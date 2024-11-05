@@ -63,7 +63,7 @@ pipeline {
                      //Start Nexus service if not running
                    sh 'docker start nexus || echo "Nexus already running."'
 
-                     Wait for Nexus to be operational
+                     //Wait for Nexus to be operational
                    sh 'sleep 10'
 
                     // Deploy to Nexus
