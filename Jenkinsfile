@@ -81,16 +81,16 @@ pipeline {
             }
         }
 
-       // stage("Publish Docker Image") {
-           // steps {
-             //   script {
+        stage("Publish Docker Image") {
+            steps {
+             /  script {
                     // Log in to Docker Hub and push the image
-                 //   docker.withRegistry('https://registry.hub.docker.com', 'docker-hub') {
-                   //     sh "docker push oumaymacherif/gestion-devops:${IMAGE_TAG}"
-                  //  }
-               // }
-           // }
-      //  }
+                    docker.withRegistry('https://registry.hub.docker.com', 'docker-hub') {
+                        sh "docker push oumaymacherif/gestion-devops:${IMAGE_TAG}"
+                    }
+                }
+            }
+        }
 
         stage("Start Services with Docker Compose") {
             steps {
