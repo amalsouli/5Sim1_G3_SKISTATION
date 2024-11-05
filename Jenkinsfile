@@ -86,7 +86,7 @@ pipeline {
               script {
                     // Log in to Docker Hub and push the image
                     docker.withRegistry('https://registry.hub.docker.com', 'docker-hub') {
-                        sh " sudo docker push oumayy/gestion-devops:${IMAGE_TAG}"
+                        sh " docker push oumayy/gestion-devops:${IMAGE_TAG}"
                     }
                 }
             }
