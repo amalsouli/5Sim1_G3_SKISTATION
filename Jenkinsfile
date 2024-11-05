@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     tools {
-        jdk 'JAVA_HOME'  // Ensure JAVA_HOME is defined in Jenkins
-        maven 'M2_HOME'  // Ensure M2_HOME is defined in Jenkins
+        jdk 'JAVA_HOME'
+        maven 'MAVEN_HOME'   
     }
 
     environment {
