@@ -8,19 +8,19 @@ services:
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"      # Permet un mot de passe vide pour root
       MYSQL_DATABASE: stationSki
     ports:
-      - "3308:3306"                          # Expose le port 3306 de MySQL en interne comme 3308 en externe
+      - "3308:3300"                          # Expose le port 3306 de MySQL en interne comme 3308 en externe
     volumes:
       - db:/var/lib/mysql
 
   app-spring:
     depends_on:
       - mysqldb
-    image: aliyounes/gestion-station-ski:1.4
+    image: oumaymacherif/gestion-station-ski:1.4
     restart: on-failure
     ports:
       - "8089:8089"
     environment:
-      SPRING_DATASOURCE_URL: "jdbc:mysql://mysqldb:3306/stationSki?createDatabaseIfNotExist=true"
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysqldb:3300/stationSki?createDatabaseIfNotExist=true"
       SPRING_DATASOURCE_USERNAME: "root"
       SPRING_DATASOURCE_PASSWORD: ""         # Correspondance avec MySQL
       SPRING_JPA_HIBERNATE_DDL_AUTO: "update"
