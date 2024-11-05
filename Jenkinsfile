@@ -9,7 +9,7 @@ pipeline {
     environment {
         NEXUS_CREDENTIALS = credentials('nexus-credentials')
         GITHUB_CREDENTIALS = credentials('github')
-        SONAR_TOKEN = credentials('sonar.token')   // Use the SonarQube token here
+        SONAR_TOKEN = credentials('sonar.token')   //
         DOCKER_HUB_CREDENTIALS = credentials('docker-hub')
         IMAGE_TAG = "${env.BUILD_NUMBER}"
     }
@@ -81,16 +81,16 @@ pipeline {
             }
         }
 
-        stage("Publish Docker Image") {
-            steps {
-                script {
+       // stage("Publish Docker Image") {
+           // steps {
+             //   script {
                     // Log in to Docker Hub and push the image
-                    docker.withRegistry('https://registry.hub.docker.com', 'docker-hub') { // Make sure 'docker-hub' is the correct ID
-                        sh "docker push oumaymacherif/gestion-devops:${IMAGE_TAG}"
-                    }
-                }
-            }
-        }
+                 //   docker.withRegistry('https://registry.hub.docker.com', 'docker-hub') {
+                   //     sh "docker push oumaymacherif/gestion-devops:${IMAGE_TAG}"
+                  //  }
+               // }
+           // }
+      //  }
 
         stage("Start Services with Docker Compose") {
             steps {

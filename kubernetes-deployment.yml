@@ -35,8 +35,8 @@ spec:
     app: mysqldb
   ports:
     - protocol: TCP
-      port: 3306
-      targetPort: 3306
+      port: 3300
+      targetPort: 3300
   type: ClusterIP
 
 ---
@@ -57,12 +57,12 @@ spec:
     spec:
       containers:
         - name: app-spring
-          image: aliyounes/gestion-station-ski:1.4
+          image: oumaymacherif/gestion-station-ski:1.4
           ports:
             - containerPort: 8089
           env:
             - name: SPRING_DATASOURCE_URL
-              value: "jdbc:mysql://mysqldb:3306/stationSki?createDatabaseIfNotExist=true"
+              value: "jdbc:mysql://mysqldb:3300/stationSki?createDatabaseIfNotExist=true"
             - name: SPRING_DATASOURCE_USERNAME
               value: "root"
             - name: SPRING_DATASOURCE_PASSWORD
