@@ -106,7 +106,8 @@ pipeline {
             steps {
                 script {
                     // Start the application using Docker Compose
-                    sh "docker-compose up -d"
+                   dir("${WORKSPACE}") {  // This will ensure it runs from the root directory of the project
+                                   sh "docker-compose up -d"
                 }
             }
         }
