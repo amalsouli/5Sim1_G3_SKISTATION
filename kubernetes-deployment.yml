@@ -17,7 +17,7 @@ spec:
         - name: mysqldb
           image: mysql:5.7
           ports:
-            - containerPort: 3306
+            - containerPort: 3300
           env:
             - name: MYSQL_ALLOW_EMPTY_PASSWORD
               value: "yes"
@@ -57,7 +57,7 @@ spec:
     spec:
       containers:
         - name: app-spring
-          image: oumaymacherif/gestion-station-ski:1.4
+          image: oumayy/gestion-devops:1.4
           ports:
             - containerPort: 8089
           env:

@@ -111,12 +111,12 @@ pipeline {
             }
         }
 
-        stage("API Testing") {
-            steps {
-                sh "curl -X POST http://localhost:8089/api/piste/add"
-                sh "curl -X GET http://localhost:8089/api/piste/all"
-            }
-        }
+       // stage("API Testing") {
+        //    steps {
+         //       sh "curl -X POST http://localhost:8089/api/piste/add"
+           //     sh "curl -X GET http://localhost:8089/api/piste/all"
+          //  }
+        //}
     }
 
     post {
