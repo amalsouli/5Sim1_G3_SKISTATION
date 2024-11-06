@@ -15,7 +15,7 @@ services:
   app-spring:
     depends_on:
       - mysqldb
-    image: oumayy/gestion-devops:${IMAGE_TAG} # Using the correct Docker Hub repository and dynamic tag
+    image: oumayy/gestion-devops:70   # Using the correct Docker Hub repository and dynamic tag
     restart: on-failure
     ports:
       - "8089:8089"
