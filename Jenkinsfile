@@ -102,19 +102,17 @@ pipeline {
           //  }
       //  }
 
-        stage("Start Services with Docker Compose") {
-            steps {
-                script {
-                    // Start the application using Docker Compose
+       stage("Start Services with Docker Compose") {
+           steps {
+               script {
                    dir("${WORKSPACE}") {  // This will ensure it runs from the root directory of the project
-                                   sh "docker-compose up -d"
-                }
-            }
-        }
+                       sh "docker-compose up -d"
+                   }
+               }
+           }
+       }
 
-
-    }
-
+}
     post {
         success {
             echo 'Pipeline completed successfully!'
