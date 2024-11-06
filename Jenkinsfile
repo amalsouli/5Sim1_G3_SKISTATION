@@ -80,17 +80,27 @@ pipeline {
                 }
             }
         }
-
-        stage("Publish Docker Image") {
+    stage("Publish Docker Image") {
             steps {
-              script {
-                    // Log in to Docker Hub and push the image
-                    docker.withRegistry('https://registry.hub.docker.com', 'docker-hub') {
-                        sh " docker push oumayy/gestion-devops:${IMAGE_TAG}"
-                    }
+                script {
+                    // Explicitly log in to Docker Hub
+                    sh "echo ${DOCKER_HUB_CREDENTIALS_PSW} | docker login -u ${DOCKER_HUB_CREDENTIALS_USR} --password-stdin"
+                    // Push the Docker image
+                    sh "docker push oumayy/gestion-devops:${IMAGE_TAG}"
                 }
             }
         }
+
+        //stage("Publish Docker Image") {
+           // steps {
+            //  script {
+                    // Log in to Docker Hub and push the image
+                //    docker.withRegistry('https://registry.hub.docker.com', 'docker-hub') {
+                   //     sh " docker push oumayy/gestion-devops:${IMAGE_TAG}"
+                  //  }
+              //  }
+          //  }
+      //  }
 
         stage("Start Services with Docker Compose") {
             steps {
