@@ -43,7 +43,7 @@ services:
     image: grafana/grafana:latest
     restart: unless-stopped
     ports:
-      - "3100:3000"
+      - "3000:3000"
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin      # Set a secure password for Grafana
     volumes:
