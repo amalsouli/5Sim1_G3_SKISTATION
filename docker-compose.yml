@@ -32,7 +32,7 @@ services:
     image: prom/prometheus:latest
     restart: unless-stopped
     ports:
-     - "9091:9090"
+     - "9090:9090"
     volumes:
       - prometheus_data:/prometheus
       - ./prometheus.yml:/etc/prometheus/prometheus.yml   # Define Prometheus scrape configuration
