@@ -2,27 +2,27 @@ version: "3.8"
 
 services:
   mysqldb:
-    image: mysql:5.7
+    image: mariadb:10.5                     # Using MariaDB for ARM64 compatibility
     restart: unless-stopped
     environment:
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"      # Allow an empty password for root
       MYSQL_DATABASE: stationSki
     ports:
-      - "3308:3300"                          # Expose MySQL's internal port 3306 as 3308 externally
+      - "3308:3300"                          # Expose MariaDB's internal port 3300 as 3308 externally
     volumes:
       - db:/var/lib/mysql
 
   app-spring:
     depends_on:
       - mysqldb
-    image: oumaymacherif/gestion-station-ski:1.4
+    image: oumayy/gestion-devops:${IMAGE_TAG} # Using the correct Docker Hub repository and dynamic tag
     restart: on-failure
     ports:
       - "8089:8089"
     environment:
-      SPRING_DATASOURCE_URL: "jdbc:mysql://mysqldb:3300/stationSki?createDatabaseIfNotExist=true"  # Corrected port to 3306
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysqldb:3300/stationSki?createDatabaseIfNotExist=true"  # Use port 3300 for MariaDB
       SPRING_DATASOURCE_USERNAME: "root"
-      SPRING_DATASOURCE_PASSWORD: ""         # Matches with MySQL
+      SPRING_DATASOURCE_PASSWORD: ""         # Matches with MariaDB
       SPRING_JPA_HIBERNATE_DDL_AUTO: "update"
       SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: "org.hibernate.dialect.MySQL5InnoDBDialect"
     stdin_open: true                         # Optional for interactive debugging
