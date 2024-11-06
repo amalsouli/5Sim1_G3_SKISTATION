@@ -3,4 +3,4 @@ global:
 scrape_configs:
   - job_name: 'spring-app'
     static_configs:
-      - targets: ['app-spring:8089']
+      - targets: ['piste-pipeline_app-spring_1:8089']
