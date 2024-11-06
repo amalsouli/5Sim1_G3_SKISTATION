@@ -1,7 +1,6 @@
 global:
   scrape_interval: 15s
-
 scrape_configs:
   - job_name: 'spring-app'
     static_configs:
-      - targets: ['app-spring:8089']   # Assuming your Spring Boot app exposes Prometheus metrics at /actuator/prometheus
+      - targets: ['app-spring:8089']
