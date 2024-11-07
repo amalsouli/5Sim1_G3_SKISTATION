@@ -15,6 +15,7 @@ services:
       - monitoring                           # Add mysqldb to the monitoring network
 
   app-spring:
+    container_name: piste-pipeline-app-spring
     depends_on:
       - mysqldb
     image: oumayy/gestion-devops:${IMAGE_TAG} # Using the correct Docker Hub repository and dynamic tag
@@ -31,7 +32,7 @@ services:
     tty: true  # Optional to keep the container alive for the command
     networks:
       - monitoring
-      
+
   prometheus:
     image: prom/prometheus:latest
     restart: unless-stopped

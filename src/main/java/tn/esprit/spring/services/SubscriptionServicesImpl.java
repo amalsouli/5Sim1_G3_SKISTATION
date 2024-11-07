@@ -69,12 +69,25 @@ public class SubscriptionServicesImpl implements ISubscriptionServices{
         }
     }
 
-    @Scheduled(cron = "* 0 9 1 * *") /* Cron expression to run a job every month at 9am */
-    @Scheduled(cron = "*/30 * * * * *") /* Cron expression to run a job every 30 secondes */
+    @Scheduled(cron = "* 0 9 1 * *") // Cron expression to run a job every month at 9am
+    @Scheduled(cron = "*/30 * * * * *") // Cron expression to run a job every 30 seconds
     public void showMonthlyRecurringRevenue() {
-        Float revenue = subscriptionRepository.recurringRevenueByTypeSubEquals(TypeSubscription.MONTHLY)
-                + subscriptionRepository.recurringRevenueByTypeSubEquals(TypeSubscription.SEMESTRIEL)/6
-                + subscriptionRepository.recurringRevenueByTypeSubEquals(TypeSubscription.ANNUAL)/12;
+        // Get revenue for different types of subscriptions, defaulting to 0 if null
+        Float monthlyRevenue = subscriptionRepository.recurringRevenueByTypeSubEquals(TypeSubscription.MONTHLY);
+        Float semestrialRevenue = subscriptionRepository.recurringRevenueByTypeSubEquals(TypeSubscription.SEMESTRIEL);
+        Float annualRevenue = subscriptionRepository.recurringRevenueByTypeSubEquals(TypeSubscription.ANNUAL);
+
+        // Ensure null values are treated as 0
+        monthlyRevenue = (monthlyRevenue != null) ? monthlyRevenue : 0.0f;
+        semestrialRevenue = (semestrialRevenue != null) ? semestrialRevenue : 0.0f;
+        annualRevenue = (annualRevenue != null) ? annualRevenue : 0.0f;
+
+        // Calculate total revenue
+        Float revenue = monthlyRevenue
+                + (semestrialRevenue / 6)
+                + (annualRevenue / 12);
+
         log.info("Monthly Revenue = " + revenue);
     }
+
 }
