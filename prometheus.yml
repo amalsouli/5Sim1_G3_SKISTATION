@@ -1,6 +1,15 @@
 global:
   scrape_interval: 15s
+
 scrape_configs:
-  - job_name: 'spring-app'
+  # Scraping Prometheus itself on 192.168.64.20
+  - job_name: 'prometheus'
+    scrape_interval: 5s
     static_configs:
-      - targets: ['localhost:8089/api/actuator/metrics']
+      - targets: ['192.168.64.20:9090']
+
+  # Scraping Spring Boot application on 192.168.64.20
+  - job_name: 'spring-app'
+    metrics_path: 'api/actuator/metrics'
+    static_configs:
+      - targets: ['192.168.64.20:8089']
