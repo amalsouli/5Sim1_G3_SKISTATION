@@ -12,4 +12,4 @@ scrape_configs:
   - job_name: 'spring-app'
     metrics_path: 'api/actuator/metrics'  # Assuming your Spring Boot app exposes metrics here
     static_configs:
-      - targets: ['piste-pipeline-app-spring-1:8089']
+      - targets: ['piste-pipeline-app-spring:8089']
