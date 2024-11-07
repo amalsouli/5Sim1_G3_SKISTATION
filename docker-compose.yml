@@ -11,6 +11,8 @@ services:
       - "3308:3306"                          # Expose MariaDB's internal port 3306 as 3308 externally
     volumes:
       - db:/var/lib/mysql
+    networks:
+      - monitoring                           # Add mysqldb to the monitoring network
 
   app-spring:
     depends_on:
@@ -27,7 +29,9 @@ services:
       SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: "org.hibernate.dialect.MySQL5InnoDBDialect"
     stdin_open: true                         # Optional for interactive debugging
     tty: true  # Optional to keep the container alive for the command
-
+    networks:
+      - monitoring
+      
   prometheus:
     image: prom/prometheus:latest
     restart: unless-stopped
