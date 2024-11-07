@@ -8,7 +8,7 @@ services:
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"      # Allow an empty password for root
       MYSQL_DATABASE: stationSki
     ports:
-      - "3308:3300"                          # Expose MariaDB's internal port 3306 as 3308 externally
+      - "3308:3306"                          # Expose MariaDB's internal port 3306 as 3308 externally
     volumes:
       - db:/var/lib/mysql
 
