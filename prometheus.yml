@@ -1,13 +1,15 @@
 global:
   scrape_interval: 15s
+
 scrape_configs:
-  # Scraping Prometheus itself on 192.168.64.20
+  # Scraping Prometheus itself on the Prometheus container
   - job_name: 'prometheus'
     scrape_interval: 5s
     static_configs:
-      - targets: ['192.168.64.20:9090']
-           # Scraping Spring Boot application on 192.168.64.20
+      - targets: ['prometheus:9090']  # 'prometheus' is the service name in Docker Compose
+
+  # Scraping Spring Boot application (app-spring) on port 8089
   - job_name: 'spring-app'
-    metrics_path: 'api/actuator/metrics'
+    metrics_path: 'api/actuator/metrics'  # Assuming your Spring Boot app exposes metrics here
     static_configs:
-      - targets: ['192.168.64.20:8089']
+      - targets: ['app-spring:8089']  # 'app-spring' is the service name in Docker Compose
