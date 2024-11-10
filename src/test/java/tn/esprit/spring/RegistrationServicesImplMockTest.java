@@ -9,7 +9,6 @@ import tn.esprit.spring.repositories.IRegistrationRepository;
 import tn.esprit.spring.repositories.ISkierRepository;
 import tn.esprit.spring.services.RegistrationServicesImpl;
 
-import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 

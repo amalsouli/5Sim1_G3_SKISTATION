@@ -3,9 +3,9 @@ package tn.esprit.spring.entities;
 import java.io.Serializable;
 import java.util.Set;
 
-import javax.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,7 +21,7 @@ import lombok.experimental.FieldDefaults;
 public class Course implements Serializable {
 
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@GeneratedValue(strategy= GenerationType.IDENTITY)
 	Long numCourse;
 	int level;
 	@Enumerated(EnumType.STRING)
