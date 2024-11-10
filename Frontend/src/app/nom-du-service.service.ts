@@ -8,7 +8,7 @@ import { piste } from './Piste';
 })
 export class NomDuServiceService {
 
-  readonly API_URL = 'http://192.168.100.34:8089/api/piste';
+  readonly API_URL = 'http://192.168.64.20:8089/api/piste';
 
   constructor(private httpClient: HttpClient) { }
 
