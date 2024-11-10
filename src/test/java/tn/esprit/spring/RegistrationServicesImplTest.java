@@ -16,14 +16,12 @@ import tn.esprit.spring.repositories.IRegistrationRepository;
 import tn.esprit.spring.repositories.ISkierRepository;
 import tn.esprit.spring.services.RegistrationServicesImpl;
 
-import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class RegistrationRestControllerTest {
+public class RegistrationServicesImplTest {
 
     @InjectMocks
     private RegistrationServicesImpl registrationService;
