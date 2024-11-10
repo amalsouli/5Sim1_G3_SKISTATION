@@ -17,6 +17,13 @@
     <version>1.0</version>
     <name>gestion-station-ski</name>
     <description>Demo project for Spring Boot</description>
+    <distributionManagement>
+        <repository>
+            <id>deploymentRepo</id>
+            <name>Nexus Repository</name>
+            <url>http://localhost:8081/repository/maven-snapshots/</url>
+        </repository>
+    </distributionManagement>
 
     <!-- Spécification de la version Java -->
     <properties>
