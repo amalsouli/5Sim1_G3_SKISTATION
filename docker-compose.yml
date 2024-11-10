@@ -18,7 +18,7 @@ services:
     container_name: piste-pipeline-app-spring
     depends_on:
       - mysqldb
-    image: oumayy/gestion-devops:${IMAGE_TAG} # Using the correct Docker Hub repository and dynamic tag
+    image: oumayy/gestion-devops-backend:${IMAGE_TAG}  # Correct Docker image and dynamic tag
     restart: on-failure
     ports:
       - "8089:8089"
@@ -33,11 +33,20 @@ services:
     networks:
       - monitoring
 
+  frontend:
+    image: oumayy/gestion-devops-frontend:${IMAGE_TAG}   # Image built for Angular frontend
+    ports:
+      - "80:80"                             # Expose port 80 for frontend access
+    networks:
+      - monitoring
+    depends_on:
+      - app-spring                         # Ensure backend is running before frontend
+
   prometheus:
     image: prom/prometheus:latest
     restart: unless-stopped
     ports:
-     - "9090:9090"
+      - "9090:9090"
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml   # Define Prometheus scrape configuration
     networks:
@@ -61,7 +70,7 @@ volumes:
   db:
   prometheus_data:
   grafana_data:
-     driver: local
+    driver: local
 networks:
   monitoring:
     driver: bridge
