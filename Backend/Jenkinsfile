@@ -48,8 +48,7 @@ def failure() {
     echo "Failure email sent."
 }
 
-
-   pipeline {
+pipeline {
     agent any
 
     tools {
@@ -111,7 +110,7 @@ def failure() {
         stage("Nexus Deployment") {
             steps {
                 script {
-                    //Start Nexus service if not running
+                    // Start Nexus service if not running
                     sh 'docker start nexus || echo "Nexus already running."'
 
                     // Wait for Nexus to be operational
