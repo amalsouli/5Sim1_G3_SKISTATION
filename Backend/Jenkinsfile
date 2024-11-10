@@ -79,34 +79,36 @@ pipeline {
             }
         }
 
-       stage("Build Backend Application") {
-           steps {
-               // Navigate to the 'Backend' directory and run Maven build
-               dir('Backend') {
-                   sh "mvn clean package -DskipTests"
-               }
-           }
-       }
-
+        stage("Build Backend Application") {
+            steps {
+                // Navigate to the 'Backend' directory and run Maven build
+                dir('Backend') {
+                    sh "mvn clean package -DskipTests"
+                }
+            }
+        }
 
         stage("SonarQube Analysis") {
             steps {
                 script {
-                    // Start SonarQube service if not running
-                    sh 'docker start sonarqube || echo "SonarQube already running."'
+                    // Ensure we're in the 'Backend' directory before running the SonarQube analysis
+                    dir('Backend') {
+                        // Start SonarQube service if not running
+                        sh 'docker start sonarqube || echo "SonarQube already running."'
 
-                    // Wait for SonarQube to be operational
-                    sh '''
-                    echo "Waiting for SonarQube to be operational..."
-                    until curl -s http://localhost:9000/api/system/status | grep -q "UP"; do
-                        echo "SonarQube is not ready, waiting for 10 seconds..."
-                        sleep 10
-                    done
-                    echo "SonarQube is now ready!"
-                    '''
+                        // Wait for SonarQube to be operational
+                        sh '''
+                        echo "Waiting for SonarQube to be operational..."
+                        until curl -s http://localhost:9000/api/system/status | grep -q "UP"; do
+                            echo "SonarQube is not ready, waiting for 10 seconds..."
+                            sleep 10
+                        done
+                        echo "SonarQube is now ready!"
+                        '''
 
-                    // Run SonarQube analysis with the correct token
-                    sh "mvn sonar:sonar -Dsonar.projectKey=gestion-station-ski -Dsonar.host.url=http://localhost:9000 -Dsonar.login=${SONAR_TOKEN}"
+                        // Run SonarQube analysis with the correct token in the Backend directory
+                        sh "mvn sonar:sonar -Dsonar.projectKey=gestion-station-ski -Dsonar.host.url=http://localhost:9000 -Dsonar.login=${SONAR_TOKEN}"
+                    }
                 }
             }
         }
@@ -121,7 +123,9 @@ pipeline {
                     sh 'sleep 10'
 
                     // Deploy to Nexus
-                    sh "mvn clean deploy -DskipTests -s /var/lib/jenkins/.m2/settings.xml"
+                    dir('Backend') { // Make sure we're in the Backend directory for Maven
+                        sh "mvn clean deploy -DskipTests -s /var/lib/jenkins/.m2/settings.xml"
+                    }
                 }
             }
         }
@@ -130,20 +134,23 @@ pipeline {
             steps {
                 script {
                     // Build the backend Docker image
-                    sh "docker build -t oumayy/gestion-devops-backend:${IMAGE_TAG} ."
+                    dir('Backend') { // Ensure we're in the Backend directory
+                        sh "docker build -t oumayy/gestion-devops-backend:${IMAGE_TAG} ."
+                    }
                 }
             }
         }
 
-       stage("Build Frontend Docker Image") {
-           steps {
-               script {
-                   // Build the frontend Docker image (with Nginx serving the built Angular app)
-                   sh "docker build -t oumayy/gestion-devops-frontend:${IMAGE_TAG} ./Frontend"
-               }
-           }
-       }
-
+        stage("Build Frontend Docker Image") {
+            steps {
+                script {
+                    // Build the frontend Docker image (with Nginx serving the built Angular app)
+                    dir('Frontend') { // Ensure we're in the Frontend directory for Docker build
+                        sh "docker build -t oumayy/gestion-devops-frontend:${IMAGE_TAG} ."
+                    }
+                }
+            }
+        }
 
         stage("Publish Docker Images") {
             steps {
@@ -169,22 +176,18 @@ pipeline {
                 }
             }
         }
-
-        stage("Email Notification") {
-            steps {
-                script {
-                    currentBuild.resultIsBetterOrEqualTo('SUCCESS') ? success() : failure()
-                }
-            }
-        }
     }
 
     post {
         success {
-            echo 'Pipeline completed successfully!'
+            script {
+                success()
+            }
         }
         failure {
-            echo 'Pipeline failed!'
+            script {
+                failure()
+            }
         }
     }
 }
