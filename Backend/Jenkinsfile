@@ -64,6 +64,22 @@ pipeline {
         IMAGE_TAG = "${env.BUILD_NUMBER}"
     }
 
+   pipeline {
+    agent any
+
+    tools {
+        jdk 'JAVA_HOME'
+        maven 'MAVEN_HOME'
+    }
+
+    environment {
+        NEXUS_CREDENTIALS = credentials('nexus-credentials')
+        GITHUB_CREDENTIALS = credentials('github')
+        SONAR_TOKEN = credentials('sonar.token')
+        DOCKER_HUB_CREDENTIALS = credentials('docker-hub')
+        IMAGE_TAG = "${env.BUILD_NUMBER}"
+    }
+
     stages {
         stage("Cleanup Workspace") {
             steps {
@@ -85,22 +101,13 @@ pipeline {
             }
         }
 
-        stage("Build Frontend Application") {
-            steps {
-                script {
-                    // Navigate to the frontend directory and build the Angular application
-                    dir('frontend') {
-                        sh "npm install"
-                        sh "ng build --prod"
-                    }
-                }
-            }
-        }
-
         stage("SonarQube Analysis") {
             steps {
                 script {
+                    // Start SonarQube service if not running
                     sh 'docker start sonarqube || echo "SonarQube already running."'
+
+                    // Wait for SonarQube to be operational
                     sh '''
                     echo "Waiting for SonarQube to be operational..."
                     until curl -s http://localhost:9000/api/system/status | grep -q "UP"; do
@@ -109,6 +116,8 @@ pipeline {
                     done
                     echo "SonarQube is now ready!"
                     '''
+
+                    // Run SonarQube analysis with the correct token
                     sh "mvn sonar:sonar -Dsonar.projectKey=gestion-station-ski -Dsonar.host.url=http://localhost:9000 -Dsonar.login=${SONAR_TOKEN}"
                 }
             }
@@ -117,8 +126,13 @@ pipeline {
         stage("Nexus Deployment") {
             steps {
                 script {
+                    //Start Nexus service if not running
                     sh 'docker start nexus || echo "Nexus already running."'
+
+                    // Wait for Nexus to be operational
                     sh 'sleep 10'
+
+                    // Deploy to Nexus
                     sh "mvn clean deploy -DskipTests -s /var/lib/jenkins/.m2/settings.xml"
                 }
             }
@@ -127,8 +141,8 @@ pipeline {
         stage("Build Backend Docker Image") {
             steps {
                 script {
-                    // Build the Docker image for the backend
-                    sh "docker build -t oumayy/gestion-devops-backend:${IMAGE_TAG} ./backend"
+                    // Build the backend Docker image
+                    sh "docker build -t oumayy/gestion-devops-backend:${IMAGE_TAG} ."
                 }
             }
         }
@@ -136,7 +150,7 @@ pipeline {
         stage("Build Frontend Docker Image") {
             steps {
                 script {
-                    // Build the Docker image for the frontend
+                    // Build the frontend Docker image (with Nginx serving the built Angular app)
                     sh "docker build -t oumayy/gestion-devops-frontend:${IMAGE_TAG} ./frontend"
                 }
             }
@@ -145,9 +159,13 @@ pipeline {
         stage("Publish Docker Images") {
             steps {
                 script {
-                    // Push both frontend and backend Docker images to Docker Hub
+                    // Explicitly log in to Docker Hub
                     sh "echo ${DOCKER_HUB_CREDENTIALS_PSW} | docker login -u ${DOCKER_HUB_CREDENTIALS_USR} --password-stdin"
+
+                    // Push the backend Docker image
                     sh "docker push oumayy/gestion-devops-backend:${IMAGE_TAG}"
+
+                    // Push the frontend Docker image
                     sh "docker push oumayy/gestion-devops-frontend:${IMAGE_TAG}"
                 }
             }
@@ -156,7 +174,7 @@ pipeline {
         stage("Start Services with Docker Compose") {
             steps {
                 script {
-                    dir("${WORKSPACE}") {
+                    dir("${WORKSPACE}") {  // This will ensure it runs from the root directory of the project
                         sh "docker-compose up -d"
                     }
                 }
