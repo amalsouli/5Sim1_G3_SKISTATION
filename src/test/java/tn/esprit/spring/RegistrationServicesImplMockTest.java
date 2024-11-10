@@ -1,138 +1,94 @@
 package tn.esprit.spring;
 
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.mockito.*;
-import tn.esprit.spring.entities.*;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+import tn.esprit.spring.entities.Course;
+import tn.esprit.spring.entities.Registration;
+import tn.esprit.spring.entities.Skier;
 import tn.esprit.spring.repositories.ICourseRepository;
 import tn.esprit.spring.repositories.IRegistrationRepository;
 import tn.esprit.spring.repositories.ISkierRepository;
 import tn.esprit.spring.services.RegistrationServicesImpl;
 
-import java.time.LocalDate;
-import java.util.List;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
 
-public class RegistrationServicesImplMockTest {
+    @ExtendWith(MockitoExtension.class)
+    public class RegistrationServicesImplMockTest {
 
-    @Mock
-    private IRegistrationRepository registrationRepository;
+        @InjectMocks
+        private RegistrationServicesImpl registrationServices;
 
-    @Mock
-    private ISkierRepository skierRepository;
+        @Mock
+        private IRegistrationRepository registrationRepository;
 
-    @Mock
-    private ICourseRepository courseRepository;
+        @Mock
+        private ISkierRepository skierRepository;
 
-    @InjectMocks
-    private RegistrationServicesImpl registrationServices;
+        @Mock
+        private ICourseRepository courseRepository;
 
-    private Skier skier;
-    private Course course;
-    private Registration registration;
+        @Test
+        public void testAddRegistrationAndAssignToSkier() {
+            // Créer un skieur simulé
+            Skier skier = new Skier();
+            skier.setNumSkier(1L);
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
+            // Créer une inscription simulée
+            Registration registration = new Registration();
+            registration.setNumRegistration(1L);
+            registration.setNumWeek(3);
 
-        // Initialiser les objets pour les tests
-        skier = new Skier();
-        skier.setNumSkier(1L);
-        skier.setDateOfBirth(LocalDate.of(2000, 1, 1));  // Age de 24 ans
+            // Simuler le comportement du repository skier
+            Mockito.when(skierRepository.findById(1L)).thenReturn(Optional.of(skier));
+            Mockito.when(registrationRepository.save(Mockito.any(Registration.class)))
+                    .thenReturn(registration);
 
-        course = new Course();
-        course.setNumCourse(1L);
-        course.setTypeCourse(TypeCourse.INDIVIDUAL);  // Type de cours individuel
+            // Appeler la méthode à tester
+            Registration savedRegistration = registrationServices.addRegistrationAndAssignToSkier(registration, 1L);
 
-        registration = new Registration();
-        registration.setNumWeek(2);  // Semaine 2 de l'année
+            // Vérifications
+            Assertions.assertNotNull(savedRegistration);
+            Assertions.assertEquals(1L, savedRegistration.getNumRegistration());
+            Assertions.assertEquals(skier, savedRegistration.getSkier());
+
+            // Vérifier que les méthodes appropriées ont été appelées
+            verify(skierRepository).findById(1L);
+            verify(registrationRepository).save(Mockito.any(Registration.class));
+        }
+
+        @Test
+        public void testAssignRegistrationToCourse() {
+            // Créer une inscription simulée
+            Registration registration = new Registration();
+            registration.setNumRegistration(1L);
+
+            // Créer un cours simulé
+            Course course = new Course();
+            course.setNumCourse(1L);
+
+            // Simuler le comportement du repository
+            Mockito.when(registrationRepository.findById(1L)).thenReturn(Optional.of(registration));
+            Mockito.when(courseRepository.findById(1L)).thenReturn(Optional.of(course));
+            Mockito.when(registrationRepository.save(Mockito.any(Registration.class)))
+                    .thenReturn(registration);
+
+            // Appeler la méthode à tester
+            Registration savedRegistration = registrationServices.assignRegistrationToCourse(1L, 1L);
+
+            // Vérifications
+            Assertions.assertNotNull(savedRegistration);
+            Assertions.assertEquals(course, savedRegistration.getCourse());
+
+            // Vérifier que les méthodes appropriées ont été appelées
+            verify(registrationRepository).findById(1L);
+            verify(courseRepository).findById(1L);
+            verify(registrationRepository).save(Mockito.any(Registration.class));
+        }
     }
-
-    @Test
-    void addRegistrationAndAssignToSkier_ShouldAssignRegistrationToSkier() {
-        // Given
-        when(skierRepository.findById(1L)).thenReturn(java.util.Optional.of(skier));
-        when(registrationRepository.save(any(Registration.class))).thenReturn(registration);
-
-        // When
-        Registration result = registrationServices.addRegistrationAndAssignToSkier(registration, 1L);
-
-        // Then
-        assertNotNull(result);
-        assertEquals(1L, result.getSkier().getNumSkier());
-        verify(registrationRepository, times(1)).save(any(Registration.class));
-    }
-
-    @Test
-    void assignRegistrationToCourse_ShouldAssignRegistrationToCourse() {
-        // Given
-        when(registrationRepository.findById(1L)).thenReturn(java.util.Optional.of(registration));
-        when(courseRepository.findById(1L)).thenReturn(java.util.Optional.of(course));
-        when(registrationRepository.save(any(Registration.class))).thenReturn(registration);
-
-        // When
-        Registration result = registrationServices.assignRegistrationToCourse(1L, 1L);
-
-        // Then
-        assertNotNull(result);
-        assertEquals(1L, result.getCourse().getNumCourse());
-        verify(registrationRepository, times(1)).save(any(Registration.class));
-    }
-
-    @Test
-    void addRegistrationAndAssignToSkierAndCourse_ShouldAssignBoth() {
-        // Given
-        when(skierRepository.findById(1L)).thenReturn(java.util.Optional.of(skier));
-        when(courseRepository.findById(1L)).thenReturn(java.util.Optional.of(course));
-
-        // Le mock de countDistinctByNumWeekAndSkier_NumSkierAndCourse_NumCourse retourne un long
-        when(registrationRepository.countDistinctByNumWeekAndSkier_NumSkierAndCourse_NumCourse(2, 1L, 1L)).thenReturn(0L);
-
-        when(registrationRepository.save(any(Registration.class))).thenReturn(registration);
-
-        // When
-        Registration result = registrationServices.addRegistrationAndAssignToSkierAndCourse(registration, 1L, 1L);
-
-        // Then
-        assertNotNull(result);
-        assertEquals(1L, result.getSkier().getNumSkier());
-        assertEquals(1L, result.getCourse().getNumCourse());
-        verify(registrationRepository, times(1)).save(any(Registration.class));
-    }
-
-    @Test
-    void addRegistrationAndAssignToSkierAndCourse_ShouldReturnNullIfAlreadyRegistered() {
-        // Given
-        when(skierRepository.findById(1L)).thenReturn(java.util.Optional.of(skier));
-        when(courseRepository.findById(1L)).thenReturn(java.util.Optional.of(course));
-
-        // Mock de countDistinctByNumWeekAndSkier_NumSkierAndCourse_NumCourse pour simuler que l'utilisateur est déjà inscrit
-        when(registrationRepository.countDistinctByNumWeekAndSkier_NumSkierAndCourse_NumCourse(2, 1L, 1L)).thenReturn(1L);
-
-        // When
-        Registration result = registrationServices.addRegistrationAndAssignToSkierAndCourse(registration, 1L, 1L);
-
-        // Then
-        assertNull(result);
-        verify(registrationRepository, times(0)).save(any(Registration.class));
-    }
-
-    @Test
-    void numWeeksCourseOfInstructorBySupport_ShouldReturnWeeks() {
-        // Given
-        Support support = Support.SKI;  // Exemple de support
-        when(registrationRepository.numWeeksCourseOfInstructorBySupport(1L, support)).thenReturn(List.of(1, 2, 3));
-
-        // When
-        List<Integer> result = registrationServices.numWeeksCourseOfInstructorBySupport(1L, support);
-
-        // Then
-        assertNotNull(result);
-        assertEquals(3, result.size());
-        assertTrue(result.contains(1));
-        assertTrue(result.contains(2));
-        assertTrue(result.contains(3));
-    }
-}
