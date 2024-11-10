@@ -48,21 +48,6 @@ def failure() {
     echo "Failure email sent."
 }
 
-pipeline {
-    agent any
-
-    tools {
-        jdk 'JAVA_HOME'
-        maven 'MAVEN_HOME'
-    }
-
-    environment {
-        NEXUS_CREDENTIALS = credentials('nexus-credentials')
-        GITHUB_CREDENTIALS = credentials('github')
-        SONAR_TOKEN = credentials('sonar.token')
-        DOCKER_HUB_CREDENTIALS = credentials('docker-hub')
-        IMAGE_TAG = "${env.BUILD_NUMBER}"
-    }
 
    pipeline {
     agent any
