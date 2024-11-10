@@ -79,11 +79,15 @@ pipeline {
             }
         }
 
-        stage("Build Backend Application") {
-            steps {
-                sh "mvn clean package -DskipTests"
-            }
-        }
+       stage("Build Backend Application") {
+           steps {
+               // Navigate to the 'Backend' directory and run Maven build
+               dir('Backend') {
+                   sh "mvn clean package -DskipTests"
+               }
+           }
+       }
+
 
         stage("SonarQube Analysis") {
             steps {
@@ -131,14 +135,15 @@ pipeline {
             }
         }
 
-        stage("Build Frontend Docker Image") {
-            steps {
-                script {
-                    // Build the frontend Docker image (with Nginx serving the built Angular app)
-                    sh "docker build -t oumayy/gestion-devops-frontend:${IMAGE_TAG} ./frontend"
-                }
-            }
-        }
+       stage("Build Frontend Docker Image") {
+           steps {
+               script {
+                   // Build the frontend Docker image (with Nginx serving the built Angular app)
+                   sh "docker build -t oumayy/gestion-devops-frontend:${IMAGE_TAG} ./Frontend"
+               }
+           }
+       }
+
 
         stage("Publish Docker Images") {
             steps {
