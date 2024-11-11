@@ -117,7 +117,6 @@ pipeline {
                 script {
                     sh 'docker start nexus || echo "Nexus already running."'
 
-                    // Wait for Nexus to be operational
                     sh 'sleep 10'
 
                     // Deploy to Nexus
@@ -142,8 +141,7 @@ pipeline {
         stage("Build Frontend Docker Image") {
             steps {
                 script {
-                    // Build the frontend Docker image (with Nginx serving the built Angular app)
-                    dir('Frontend') { // Ensure we're in the Frontend directory for Docker build
+                    dir('Frontend') { 
                         sh "docker build -t oumayy/gestion-devops-frontend:${IMAGE_TAG} ."
                     }
                 }
@@ -153,13 +151,10 @@ pipeline {
         stage("Publish Docker Images") {
             steps {
                 script {
-                    // Explicitly log in to Docker Hub
                     sh "echo ${DOCKER_HUB_CREDENTIALS_PSW} | docker login -u ${DOCKER_HUB_CREDENTIALS_USR} --password-stdin"
 
-                    // Push the backend Docker image
                     sh "docker push oumayy/gestion-devops-backend:${IMAGE_TAG}"
 
-                    // Push the frontend Docker image
                     sh "docker push oumayy/gestion-devops-frontend:${IMAGE_TAG}"
                 }
             }
@@ -168,7 +163,7 @@ pipeline {
         stage("Start Services with Docker Compose") {
             steps {
                 script {
-                    dir("${WORKSPACE}") {  // This will ensure it runs from the root directory of the project
+                    dir("${WORKSPACE}") {  
                         sh "docker-compose up -d"
                     }
                 }
