@@ -1,9 +1,7 @@
 pipeline {
     agent any
     environment {
-        SONAR_TOKEN = credentials('sonari')
-        DOCKER_CREDENTIALS_ID = 'medachidocker'  // Update with the ID for Docker credentials in Jenkins
-        DOCKER_IMAGE = 'medachi13/gestion-station-ski:latest'  // Update with your Docker Hub username and repo
+        SONAR_TOKEN = credentials('sonari') // Assumes you've added a secret token in Jenkins credentials store
     }
     stages {
         stage('GIT Checkout') {
@@ -24,46 +22,33 @@ pipeline {
                 sh 'mvn compile'
             }
         }
-        stage('Unit Tests') {
-            steps {
+       stage('Unit Tests') {
+           steps {
                 echo "Running Unit Tests"
-                sh 'mvn test'
+               sh 'mvn test'
             }
+       }
+ stage('SonarQube Analysis') {
+    steps {
+        script {
+           withSonarQubeEnv(installationName: 'sq1') {
+                sh """
+                mvn clean install sonar:sonar \
+                -Dsonar.projectKey=5Sim1_G3_SKISTATION \
+                -Dsonar.login=${SONAR_TOKEN} \
+                -Dsonar.java.binaries=target/classes
+                """
+           }
         }
-        stage('SonarQube Analysis') {
-            steps {
-                script {
-                    withSonarQubeEnv(installationName: 'sq1') {
-                        sh """
-                        mvn clean install sonar:sonar \
-                        -Dsonar.projectKey=5Sim1_G3_SKISTATION \
-                        -Dsonar.login=${SONAR_TOKEN} \
-                        -Dsonar.java.binaries=target/classes
-                        """
-                    }
-                }
-            }
-        }
-        stage('Docker Build') {
-            steps {
-                script {
-                    echo "Building Docker image"
-                    sh "docker build -t ${DOCKER_IMAGE} ."
-                }
-            }
-        }
-        stage('Docker Push') {
-            steps {
-                script {
-                    echo "Pushing Docker image to Docker Hub"
-                    withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, usernameVariable: 'medachi13', passwordVariable: 'newangeles9')]) {
-                        sh "echo $DOCKER_PASSWORD | docker login -u $DOCKER_USER --password-stdin"
-                        sh "docker push ${DOCKER_IMAGE}"
-                        sh "docker logout"
-                    }
-                }
-            }
-        }
+    }
+}
+
+        // Uncomment the following stage if you need to deploy to Nexus
+        stage('Deploy to Nexus') {
+           steps {
+            sh 'mvn clean deploy -DskipTests'
+           }
+         }
     }
     post {
         always {
@@ -71,4 +56,4 @@ pipeline {
             cleanWs()
         }
     }
-}
+} 
