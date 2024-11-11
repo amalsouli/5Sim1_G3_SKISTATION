@@ -44,13 +44,13 @@ pipeline {
 }
 
         // Uncomment the following stage if you need to deploy to Nexus
-      //   stage('Deploy to Nexus') {
-      //      steps {
-      //       sh 'mvn clean deploy -DskipTests'
-    //         sh 'mvn clean deploy -DskipTests'
-   //         }
-//         }
-//    }
+        stage('Deploy to Nexus') {
+            steps {
+          sh 'mvn clean deploy -DskipTests'
+             sh 'mvn clean deploy -DskipTests'
+            }
+        }
+    }
     post {
         always {
             echo 'Cleaning up...'
