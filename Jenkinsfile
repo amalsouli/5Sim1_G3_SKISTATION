@@ -53,12 +53,12 @@ pipeline {
         }
 
         // Uncomment the following stage if you need to deploy to Nexus
-        // stage('Deploy to Nexus') {
-        //     steps {
-        //         echo "Deploying to Nexus"
-        //         sh 'mvn deploy -Dmaven.test.skip=true'
-        //     }
-        // }
+         stage('Deploy to Nexus') {
+             steps {
+                 echo "Deploying to Nexus"
+                 sh 'mvn deploy -Dmaven.test.skip=true'
+             }
+         }
     }
 
     post {
