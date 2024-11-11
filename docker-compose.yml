@@ -12,7 +12,7 @@ services:
     volumes:
       - db:/var/lib/mysql
     networks:
-      - monitoring                           k
+      - monitoring                           
 
   app-spring:
     container_name: piste-pipeline-app-spring
