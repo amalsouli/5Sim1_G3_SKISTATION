@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        SONAR_TOKEN = credentials('sonari') // Assumes you've added a secret token in Jenkins credentials store
+        SONAR_TOKEN = credentials('sonari')
     }
     stages {
         stage('GIT Checkout') {
@@ -22,38 +22,49 @@ pipeline {
                 sh 'mvn compile'
             }
         }
-       stage('Unit Tests') {
-           steps {
+        stage('Unit Tests') {
+            steps {
                 echo "Running Unit Tests"
-               sh 'mvn test'
+                sh 'mvn test'
             }
-       }
- stage('SonarQube Analysis') {
-    steps {
-        script {
-           withSonarQubeEnv(installationName: 'sq1') {
-                sh """
-                mvn clean install sonar:sonar \
-                -Dsonar.projectKey=5Sim1_G3_SKISTATION \
-                -Dsonar.login=${SONAR_TOKEN} \
-                -Dsonar.java.binaries=target/classes
-                """
-           }
         }
-    }
-}
-
-        // Uncomment the following stage if you need to deploy to Nexus
+        stage('SonarQube Analysis') {
+            steps {
+                script {
+                    withSonarQubeEnv('sq1') {
+                        sh """
+                        mvn clean install sonar:sonar \
+                        -Dsonar.projectKey=5Sim1_G3_SKISTATION \
+                        -Dsonar.login=${SONAR_TOKEN} \
+                        -Dsonar.java.binaries=target/classes
+                        """
+                    }
+                }
+            }
+        }
         stage('Deploy to Nexus') {
-           steps {
-            sh 'mvn clean deploy -DskipTests'
-           }
-         }
+            steps {
+                script {
+                    try {
+                        sh 'mvn clean deploy -PskipTests'
+                    } catch (Exception e) {
+                        echo "Deployment to Nexus failed: ${e.message}"
+                        unstable("Nexus deployment failed")
+                    }
+                }
+            }
+        }
     }
     post {
         always {
             echo 'Cleaning up...'
             cleanWs()
+        }
+        failure {
+            echo 'Build failed!'
+        }
+        success {
+            echo 'Build completed successfully!'
         }
     }
 }
