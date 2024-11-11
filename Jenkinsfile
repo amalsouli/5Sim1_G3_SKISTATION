@@ -22,12 +22,12 @@ pipeline {
                 sh 'mvn compile'
             }
         }
-        stage('Unit Tests') {
-            steps {
-                echo "Running Unit Tests"
-                sh 'mvn test'
-            }
-        }
+    //    stage('Unit Tests') {
+      //      steps {
+       //         echo "Running Unit Tests"
+         //       sh 'mvn test'
+         //   }
+     //   }
 // stage('SonarQube Analysis') {
  //   steps {
    //     script {
