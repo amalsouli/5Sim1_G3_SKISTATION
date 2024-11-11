@@ -71,13 +71,17 @@ pipeline {
             }
         }
 
-        stage("Checkout from SCM") {
-            steps {
-                git branch: 'main',
-                credentialsId: 'github',
-                url: 'https://github.com/Oumayma-cherif/Devops.git'
+        stages {
+            stage('GIT Checkout') {
+                steps {
+                    echo "Getting Project from Git"
+                    git branch: 'cherifoumayma_5sim1_G3',  // Your branch name
+                        credentialsId: 'github',  // Your credentialsId for GitHub authentication
+                        url: 'https://github.com/amalsouli/5Sim1_G3_SKISTATION.git'  // Your repository URL
+                }
             }
         }
+
 
         stage("Build Backend Application") {
             steps {
