@@ -7,6 +7,6 @@ scrape_configs:
 
   # Scraping Spring Boot application (app-spring) on port 8089
   - job_name: 'spring-app'
-    metrics_path: '/api/actuator/prometheus'  # Updated to include the context path
+    metrics_path: '/api/actuator/prometheus'  
     static_configs:
-      - targets: ['172.18.0.4:8089']  # Ensure this IP is correct for your Spring Boot app
+      - targets: ['172.18.0.4:8089']  
