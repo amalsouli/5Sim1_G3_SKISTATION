@@ -87,7 +87,7 @@ pipeline {
             steps {
                 // Navigate to the 'Backend' directory and run Maven build
                 dir('Backend') {
-                    sh "mvn clean package -DskipTests"
+                    sh "mvn clean package"
                 }
             }
         }
