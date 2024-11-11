@@ -17,6 +17,7 @@
 			<sonar.projectKey>Oumayma-cherif_ski</sonar.projectKey>
 			<sonar.organization>Oumayma-cherif_ski</sonar.organization> <!-- Update this -->
 			<sonar.host.url>https://sonarcloud.io</sonar.host.url>
+		    <sonar.java.binaries>target/classes</sonar.java.binaries>
 
 		<java.version>1.8</java.version>
 		<maven-jar-plugin.version>3.1.1</maven-jar-plugin.version>
