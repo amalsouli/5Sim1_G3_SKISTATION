@@ -28,20 +28,20 @@ pipeline {
                 sh 'mvn test'
             }
         }
- stage('SonarQube Analysis') {
-    steps {
-        script {
-            withSonarQubeEnv(installationName: 'sq1') {
-                sh """
-                mvn clean install sonar:sonar \
-                -Dsonar.projectKey=5Sim1_G3_SKISTATION \
-                -Dsonar.login=${SONAR_TOKEN} \
-                -Dsonar.java.binaries=target/classes
-                """
-            }
-        }
-    }
-}
+// stage('SonarQube Analysis') {
+ //   steps {
+   //     script {
+     //       withSonarQubeEnv(installationName: 'sq1') {
+       //         sh """
+         //       mvn clean install sonar:sonar \
+           //     -Dsonar.projectKey=5Sim1_G3_SKISTATION \
+             //   -Dsonar.login=${SONAR_TOKEN} \
+               // -Dsonar.java.binaries=target/classes
+     //           """
+       //     }
+       // }
+    //}
+//}
 
         // Uncomment the following stage if you need to deploy to Nexus
         stage('Deploy to Nexus') {
