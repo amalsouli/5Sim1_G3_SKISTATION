@@ -44,11 +44,11 @@ pipeline {
 }
 
         // Uncomment the following stage if you need to deploy to Nexus
-        // stage('Deploy to Nexus') {
-        //     steps {
-        //         sh 'mvn deploy -Dmaven.test.skip=true'
-        //     }
-        // }
+        stage('Deploy to Nexus') {
+        /    steps {
+            sh '"mvn clean deploy -DskipTests -s usr/share/maven/conf/settings.xml'
+           }
+         }
     }
     post {
         always {
