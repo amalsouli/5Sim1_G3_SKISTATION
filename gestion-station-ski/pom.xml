@@ -3,12 +3,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <!-- Parent Spring Boot - Mise à jour vers une version plus récente et stable -->
+    <!-- Parent Spring Boot - Mise à jour vers une version stable -->
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>2.7.17</version>
-        <relativePath/>
+        <relativePath/> <!-- This is to avoid the use of an older version of Spring Boot from local repositories -->
     </parent>
 
     <!-- Informations sur le projet -->
@@ -53,13 +53,13 @@
         </dependency>
 
         <!-- Database -->
-       <dependency>
-    <groupId>mysql</groupId>
-    <artifactId>mysql-connector-java</artifactId>
-    <version>8.0.33</version>
-</dependency>
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <scope>runtime</scope>
+        </dependency>
 
-        <!-- Lombok -->
+        <!-- Lombok (pour éviter la verbosité dans le code) -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -79,14 +79,14 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
             <version>${junit-jupiter.version}</version>
             <scope>test</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
@@ -116,6 +116,7 @@
                     </excludes>
                 </configuration>
             </plugin>
+
             <!-- Plugin pour les tests -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -129,15 +130,16 @@
         </plugins>
     </build>
 
+    <!-- Distribution Management (si vous utilisez Nexus) -->
+    <!-- Si vous n'avez pas un serveur Nexus configuré, vous pouvez supprimer ou modifier cette section -->
     <distributionManagement>
         <repository>
             <id>nexus-releases</id>
-            <urlhttp://192.168.33.10:8081/repository/maven-releases//</url>
+            <url>http://localhost:8081/repository/maven-releases/</url>
         </repository>
         <snapshotRepository>
             <id>nexus-snapshots</id>
             <url>http://localhost:8081/repository/maven-snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
-
 </project>
