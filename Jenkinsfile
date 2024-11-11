@@ -44,6 +44,16 @@ pipeline {
                 }
             }
         }
+           stage('Deploy to Nexus') {
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'nexus', usernameVariable: 'admin', passwordVariable: '123456')]) {
+                        // Déployer l'artefact dans Nexus en utilisant Maven
+                        sh "mvn deploy -s org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.0.2155:sonar -Dusername=admin -Dpassword=123456"
+                    }
+                }
+            }
+        }
 
         // Uncomment the following stage if you need to deploy to Nexus
         // stage('Deploy to Nexus') {
