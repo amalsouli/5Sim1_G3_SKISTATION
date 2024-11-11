@@ -16,6 +16,7 @@ services:
     depends_on:
       - db-mysql
     image: yesserzaghdoudi/stationski:1.0
+
     restart: on-failure
     ports:
       - "8089:8089"
