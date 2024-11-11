@@ -80,7 +80,7 @@ pipeline {
                         url: 'https://github.com/amalsouli/5Sim1_G3_SKISTATION.git'  // Your repository URL
                 }
             }
-        }
+        
 
 
         stage("Build Backend Application") {
