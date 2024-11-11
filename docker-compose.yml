@@ -1,0 +1,32 @@
+version: '3.9'
+services:
+  db-mysql:
+    image: "mysql:latest"
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=stationski
+      - MYSQL_PASSWORD=root
+    ports:
+      - "3306:3306"
+    volumes:
+      - db:/var/lib/mysql
+
+  station-ski:
+    depends_on:
+      - db-mysql
+    image: yesserzaghdoudi/stationski:1.0
+    restart: on-failure
+    ports:
+      - "8089:8089"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db-mysql:3306/stationski?createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.MySQL5InnoDBDialect
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    stdin_open: true
+    tty: true
+
+volumes:
+  db:
