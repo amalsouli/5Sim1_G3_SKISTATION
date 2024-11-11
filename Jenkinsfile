@@ -2,8 +2,8 @@ pipeline {
     agent any
     environment {
         SONAR_TOKEN = credentials('sonari')
-        DOCKER_CREDENTIALS_ID = 'your-docker-credentials-id'  // Update with the ID for Docker credentials in Jenkins
-        DOCKER_IMAGE = 'yourdockerhubusername/gestion-station-ski:latest'  // Update with your Docker Hub username and repo
+        DOCKER_CREDENTIALS_ID = 'medachidocker'  // Update with the ID for Docker credentials in Jenkins
+        DOCKER_IMAGE = 'medachi13/gestion-station-ski:latest'  // Update with your Docker Hub username and repo
     }
     stages {
         stage('GIT Checkout') {
