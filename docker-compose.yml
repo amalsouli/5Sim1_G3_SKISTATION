@@ -2,45 +2,45 @@ version: "3.8"
 
 services:
   mysqldb:
-    image: mariadb:10.5                     # Using MariaDB for ARM64 compatibility
+    image: mariadb:10.5                    
     restart: unless-stopped
     environment:
-      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"      # Allow an empty password for root
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"     
       MYSQL_DATABASE: stationSki
     ports:
-      - "3308:3306"                          # Expose MariaDB's internal port 3306 as 3308 externally
+      - "3308:3306"                         
     volumes:
       - db:/var/lib/mysql
     networks:
-      - monitoring                           # Add mysqldb to the monitoring network
+      - monitoring                           k
 
   app-spring:
     container_name: piste-pipeline-app-spring
     depends_on:
       - mysqldb
-    image: oumayy/gestion-devops-backend:${IMAGE_TAG}  # Correct Docker image and dynamic tag
+    image: oumayy/gestion-devops-backend:${IMAGE_TAG}  
     restart: on-failure
     ports:
       - "8089:8089"
     environment:
-      SPRING_DATASOURCE_URL: "jdbc:mysql://mysqldb:3306/stationSki?createDatabaseIfNotExist=true"  # Use port 3306 for MariaDB (corrected port)
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysqldb:3306/stationSki?createDatabaseIfNotExist=true"  
       SPRING_DATASOURCE_USERNAME: "root"
-      SPRING_DATASOURCE_PASSWORD: ""         # Matches with MariaDB
+      SPRING_DATASOURCE_PASSWORD: ""         
       SPRING_JPA_HIBERNATE_DDL_AUTO: "update"
       SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: "org.hibernate.dialect.MySQL5InnoDBDialect"
-    stdin_open: true                         # Optional for interactive debugging
-    tty: true  # Optional to keep the container alive for the command
+    stdin_open: true                        
+    tty: true  
     networks:
       - monitoring
 
   frontend:
-    image: oumayy/gestion-devops-frontend:${IMAGE_TAG}   # Image built for Angular frontend
+    image: oumayy/gestion-devops-frontend:${IMAGE_TAG}  
     ports:
-      - "80:80"                             # Expose port 80 for frontend access
+      - "80:80"                             
     networks:
       - monitoring
     depends_on:
-      - app-spring                         # Ensure backend is running before frontend
+      - app-spring                        
 
   prometheus:
     image: prom/prometheus:latest
@@ -48,7 +48,7 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml   # Define Prometheus scrape configuration
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml   
     networks:
       - monitoring
 
@@ -58,11 +58,11 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin      # Set a secure password for Grafana
+      - GF_SECURITY_ADMIN_PASSWORD=admin      
     volumes:
       - grafana_data:/var/lib/grafana
     depends_on:
-      - prometheus                           # Ensure Grafana starts after Prometheus
+      - prometheus                           
     networks:
       - monitoring
 
