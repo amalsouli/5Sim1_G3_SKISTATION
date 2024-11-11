@@ -75,9 +75,9 @@ pipeline {
             stage('GIT Checkout') {
                 steps {
                     echo "Getting Project from Git"
-                    git branch: 'cherifoumayma_5sim1_G3',  // Your branch name
-                        credentialsId: 'github',  // Your credentialsId for GitHub authentication
-                        url: 'https://github.com/amalsouli/5Sim1_G3_SKISTATION.git'  // Your repository URL
+                    git branch: 'cherifoumayma_5sim1_G3',  
+                        credentialsId: 'github',  
+                        url: 'https://github.com/amalsouli/5Sim1_G3_SKISTATION.git'  
                 }
             }
         
@@ -85,7 +85,6 @@ pipeline {
 
         stage("Build Backend Application") {
             steps {
-                // Navigate to the 'Backend' directory and run Maven build
                 dir('Backend') {
                     sh "mvn clean package"
                 }
@@ -95,12 +94,9 @@ pipeline {
         stage("SonarQube Analysis") {
             steps {
                 script {
-                    // Ensure we're in the 'Backend' directory before running the SonarQube analysis
                     dir('Backend') {
-                        // Start SonarQube service if not running
                         sh 'docker start sonarqube || echo "SonarQube already running."'
 
-                        // Wait for SonarQube to be operational
                         sh '''
                         echo "Waiting for SonarQube to be operational..."
                         until curl -s http://localhost:9000/api/system/status | grep -q "UP"; do
@@ -110,7 +106,6 @@ pipeline {
                         echo "SonarQube is now ready!"
                         '''
 
-                        // Run SonarQube analysis with the correct token in the Backend directory
                         sh "mvn sonar:sonar -Dsonar.projectKey=gestion-station-ski -Dsonar.host.url=http://localhost:9000 -Dsonar.login=${SONAR_TOKEN}"
                     }
                 }
@@ -120,7 +115,6 @@ pipeline {
         stage("Nexus Deployment") {
             steps {
                 script {
-                    // Start Nexus service if not running
                     sh 'docker start nexus || echo "Nexus already running."'
 
                     // Wait for Nexus to be operational
