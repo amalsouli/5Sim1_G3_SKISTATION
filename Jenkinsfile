@@ -46,7 +46,7 @@ pipeline {
         // Uncomment the following stage if you need to deploy to Nexus
         stage('Deploy to Nexus') {
            steps {
-            sh 'mvn clean deploy -DskipTests -s usr/share/maven/conf/settings.xml'
+            sh 'mvn clean deploy -DskipTests'
            }
          }
     }
