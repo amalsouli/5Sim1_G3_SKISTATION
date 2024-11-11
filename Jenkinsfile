@@ -2,14 +2,14 @@ pipeline {
     agent any
 
     environment {
-        SONAR_TOKEN = credentials('jenkins-sonar') // Assumes you've added a secret token in Jenkins credentials store
+        SONAR_TOKEN = credentials('jenkins-sonar') // Token SonarQube
     }
 
     stages {
         stage('GIT Checkout') {
             steps {
                 echo "Getting Project from Git"
-                git branch: 'mohamedachi_5SIM1_G3', credentialsId: '12', url: 'https://github.com/amalsouli/5Sim1_G3_SKISTATION.git'
+                git branch: 'mohamedachi_5SIM1_G3', credentialsId: 'your-credentials-id', url: 'https://github.com/amalsouli/5Sim1_G3_SKISTATION.git'
             }
         }
 
@@ -37,36 +37,30 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 script {
-                    // Ensure sonar.projectKey and other properties are correctly configured
-                    withSonarQubeEnv(installationName: 'sq1') { // Use your SonarQube installation name here
+                    // Assurez-vous que sonar.projectKey et autres propriétés sont configurées
+                    withSonarQubeEnv(installationName: 'sq1') { // Nom de votre installation SonarQube
                         sh "mvn clean org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.0.2155:sonar -Dsonar.projectKey=5Sim1_G3_SKISTATION -Dsonar.login=${SONAR_TOKEN}"
                     }
                 }
             }
         }
-           stage('Deploy to Nexus') {
+
+        stage('Deploy to Nexus') {
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: 'nexus', usernameVariable: 'admin', passwordVariable: '123456')]) {
+                    withCredentials([usernamePassword(credentialsId: 'nexus', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
                         // Déployer l'artefact dans Nexus en utilisant Maven
-                        sh "mvn deploy -s org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.0.2155:sonar -Dusername=admin -Dpassword=123456"
+                        sh "mvn deploy -Dusername=${NEXUS_USER} -Dpassword=${NEXUS_PASS}"
                     }
                 }
             }
         }
-
-        // Uncomment the following stage if you need to deploy to Nexus
-        // stage('Deploy to Nexus') {
-        //     steps {
-        //         sh 'mvn deploy -Dmaven.test.skip=true'
-        //     }
-        // }
     }
 
     post {
         always {
             echo 'Cleaning up...'
-            cleanWs()
+            cleanWs() // Nettoyage des fichiers temporaires
         }
     }
 }
